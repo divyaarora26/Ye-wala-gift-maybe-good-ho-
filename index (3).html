@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Happy Valentine's Day — A Love Gift</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Use a romantic web-safe fallback; Google Fonts not used (no external resources). -->
+</head>
+<body>
+  <div id="scene">
+    <!-- Decorative sparkles -->
+    <div class="sparkles" aria-hidden="true"></div>
+
+    <!-- Heart container -->
+    <div id="heart-wrap" role="button" aria-label="Heart — click to split" tabindex="0">
+      <div id="heart" class="pulse" data-state="whole">
+        <div class="half left" id="left-half" aria-hidden="true"></div>
+        <div class="glow-between" id="glow-between" aria-hidden="true"></div>
+        <div class="half right" id="right-half" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <!-- First message overlay -->
+    <div id="first-message" class="overlay hidden" aria-hidden="true">
+      <div class="message-card">
+        <h1 id="msg1">Happy Valentine's Day Mommy 🍒</h1>
+        <button id="next-btn" class="btn">Next</button>
+      </div>
+    </div>
+
+    <!-- Love letter view -->
+    <div id="letter-view" class="overlay hidden" aria-hidden="true">
+      <div class="letter-card" id="letter-card" role="article" aria-live="polite">
+        <h2 class="letter-title">A Little Love Letter</h2>
+        <div id="letter-content" class="letter-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
