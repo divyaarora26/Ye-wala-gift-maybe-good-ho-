@@ -1,0 +1,338 @@
+/* style.css
+   Valentine's Day interactive page: styles, layout, animations
+   Responsive, mobile-first.
+*/
+
+/* --- Basic page setup --- */
+:root{
+  --bg1: #0f0410;
+  --bg2: #2b0018;
+  --accent: #ff2e4c;
+  --deep: #7a0b10;
+  --cell-size: clamp(10px, 4.5vw, 36px); /* heart pixel size */
+  --heart-width-cells: 11; /* internal grid logic uses 11 columns */
+}
+
+/* Reset */
+*{box-sizing:border-box}
+html,body,#scene{height:100%}
+body{
+  margin:0;
+  font-family: "Georgia", "Times New Roman", serif;
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(255,140,170,0.06), transparent 10%),
+              radial-gradient(1000px 400px at 90% 90%, rgba(255,60,120,0.05), transparent 10%),
+              linear-gradient(180deg,var(--bg1), var(--bg2));
+  color:#ffdfe6;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* Scene center */
+#scene{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  padding:4vmin;
+}
+
+/* Sparkles background (subtle particles) */
+.sparkles{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255,240,255,0.06) 0 2px, transparent 3px),
+    radial-gradient(circle at 70% 30%, rgba(255,200,230,0.05) 0 2px, transparent 3px),
+    radial-gradient(circle at 40% 80%, rgba(255,255,220,0.04) 0 2px, transparent 3px);
+  opacity:0.9;
+  animation: sparkleShift 10s linear infinite;
+  mix-blend-mode:screen;
+}
+@keyframes sparkleShift{
+  0%{transform:translateY(0)}
+  50%{transform:translateY(-20px)}
+  100%{transform:translateY(0)}
+}
+
+/* Heart wrapper clickable */
+#heart-wrap{
+  width: calc(var(--cell-size) * var(--heart-width-cells) * 0.9);
+  max-width: 540px;
+  aspect-ratio: 1 / 1;
+  display:grid;
+  place-items:center;
+  z-index:4;
+}
+
+/* Heart base container */
+#heart{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:calc(var(--cell-size) * 0.5);
+  width:100%;
+  height:100%;
+  transition: transform 500ms ease;
+  transform-origin:center;
+  filter: drop-shadow(0 12px 22px rgba(0,0,0,0.55));
+}
+
+/* pulsing heartbeat */
+.pulse{
+  animation: heartbeat 1.9s ease-in-out infinite;
+}
+@keyframes heartbeat{
+  0%{transform:scale(1)}
+  20%{transform:scale(1.05)}
+  40%{transform:scale(0.98)}
+  60%{transform:scale(1.03)}
+  100%{transform:scale(1)}
+}
+
+/* Halves layout — each half is a grid of "pixels" */
+.half{
+  display:grid;
+  grid-auto-rows:var(--cell-size);
+  gap:calc(var(--cell-size) * 0.08);
+  align-content:center;
+  justify-content:center;
+  transition: transform 900ms cubic-bezier(.2,.9,.2,1), opacity 400ms linear;
+  will-change: transform, opacity;
+  position:relative;
+  z-index:2;
+}
+
+/* Left half uses 6 columns (cols 0..5), right uses 5 columns (cols 6..10) */
+.half.left{ grid-template-columns: repeat(6, var(--cell-size)); }
+.half.right{ grid-template-columns: repeat(5, var(--cell-size)); }
+
+/* individual block/pixel */
+.block{
+  width:var(--cell-size);
+  height:var(--cell-size);
+  background:var(--accent);
+  box-shadow: inset -4px -6px 8px rgba(0,0,0,0.45), 0 0 8px rgba(255,30,50,0.06);
+  border-radius:3px;
+  transition: transform 600ms ease, opacity 300ms ease;
+}
+
+/* Shades */
+.shade-1{ background: linear-gradient(180deg,#9e0a12,#7a0509); }
+.shade-2{ background: linear-gradient(180deg,#b61c2a,#8c0f15); transform:translateY(1px);}
+.shade-3{ background: linear-gradient(180deg,#ff435f,#b70f20); box-shadow: inset -2px -4px 10px rgba(255,150,160,0.06); }
+
+/* subtle glowing outline around whole heart */
+#heart::after{
+  content:"";
+  position:absolute;
+  inset:-12px;
+  border-radius:18px;
+  pointer-events:none;
+  background: radial-gradient(closest-side, rgba(255,80,110,0.14), transparent 55%);
+  filter: blur(14px);
+  opacity:0.8;
+  z-index:1;
+}
+
+/* Glow between halves (initially hidden) */
+.glow-between{
+  position:absolute;
+  width:8%;
+  height:50%;
+  background: radial-gradient(closest-side, rgba(255,120,170,0.95), rgba(255,80,120,0.15) 55%, transparent 65%);
+  border-radius:24px;
+  opacity:0;
+  transform: scaleY(0.9);
+  transition: opacity 600ms ease, transform 600ms ease;
+  z-index:1;
+  pointer-events:none;
+  filter: blur(10px);
+  left:50%;
+  transform-origin:center;
+  translate: -50% 0;
+}
+
+/* When heart is split */
+#heart.split .left{
+  transform: translateX(-18%) rotate(-10deg) translateZ(0);
+}
+#heart.split .right{
+  transform: translateX(18%) rotate(10deg) translateZ(0);
+}
+#heart.split #glow-between{
+  opacity:1;
+  transform: scaleY(1.0);
+}
+
+/* overlay messages */
+.overlay{
+  position: absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:6;
+  pointer-events:none;
+}
+.overlay .message-card,
+.overlay .letter-card{
+  pointer-events:auto;
+}
+
+/* First message card */
+.message-card{
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 2.5rem 2rem;
+  border-radius:12px;
+  text-align:center;
+  backdrop-filter: blur(4px);
+  transform: translateY(12px);
+  opacity:0;
+  transition:opacity 700ms ease, transform 700ms ease;
+  max-width: min(680px, 94%);
+  box-shadow: 0 10px 40px rgba(10,5,15,0.6);
+}
+.message-card h1{
+  margin:0 0 1rem 0;
+  font-family: "Palatino Linotype", "Times New Roman", serif;
+  font-weight:400;
+  font-size: clamp(1.2rem, 3.5vw, 2.2rem);
+  color: #ffdfe6;
+  text-shadow: 0 6px 20px rgba(150,30,60,0.35);
+  letter-spacing:0.6px;
+}
+.message-card.show{
+  opacity:1;
+  transform: translateY(0);
+}
+
+/* Next button */
+.btn{
+  background: linear-gradient(180deg,#ff3a5a,#d60f2a);
+  color:white;
+  border:0;
+  padding:0.6rem 1.1rem;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow: 0 8px 18px rgba(200,30,60,0.25), inset 0 -3px 6px rgba(0,0,0,0.12);
+}
+.btn:active{ transform:translateY(1px) }
+
+/* Hidden utility */
+.hidden{ display:none; opacity:0; pointer-events:none; }
+
+/* Letter view card */
+.letter-card{
+  max-width:900px;
+  width:clamp(320px, 85vw, 900px);
+  padding: clamp(1rem, 3.5vw, 2.6rem);
+  border-radius:16px;
+  background: linear-gradient(180deg, rgba(255,250,240,0.02), rgba(20,10,18,0.18));
+  border:1px solid rgba(255,255,255,0.03);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.75);
+  transform: translateY(10px);
+  opacity:0;
+  transition: opacity 700ms ease, transform 700ms ease;
+  position:relative;
+  overflow:visible;
+}
+.letter-card.show{
+  opacity:1;
+  transform: translateY(0);
+}
+.letter-title{
+  margin:0 0 0.6rem 0;
+  font-size: clamp(1rem, 2.6vw, 1.2rem);
+  color:#ffdfe6;
+  font-weight:600;
+  font-family: "Georgia", serif;
+}
+.letter-content{
+  color:#ffe9ef;
+  font-size: clamp(0.95rem, 2.2vw, 1.05rem);
+  line-height:1.6;
+  min-height:8em;
+  margin-top:1rem;
+}
+
+/* floating/glowing effect for card */
+.letter-card::before{
+  content:"";
+  position:absolute;
+  inset:-24px;
+  border-radius:20px;
+  background: radial-gradient(circle at 20% 20%, rgba(255,90,140,0.06), transparent 14%),
+              radial-gradient(circle at 80% 80%, rgba(255,170,200,0.04), transparent 10%);
+  filter: blur(12px);
+  z-index:-1;
+  opacity:0.9;
+}
+
+/* Flower styles (created by JS) */
+.flower{
+  position:fixed;
+  pointer-events:none;
+  top:-10%;
+  z-index:3;
+  will-change: transform, opacity;
+  transform-origin: center;
+  opacity:0.95;
+}
+
+/* A simple flower using borders / gradients */
+.flower .petal{
+  width:100%;
+  height:100%;
+  position:relative;
+}
+.flower .petal::before,
+.flower .petal::after{
+  content:"";
+  position:absolute;
+  width:60%;
+  height:60%;
+  background: radial-gradient(circle at 40% 30%, rgba(255,255,255,0.12), transparent 20%), linear-gradient(180deg,#ffb6d0,#ff6b97);
+  border-radius:60% 60% 20% 20%;
+  top:0;
+  left:20%;
+  transform-origin:50% 80%;
+}
+.flower .petal::after{
+  transform: rotate(90deg);
+  left:0;
+}
+
+/* flower center */
+.flower .center{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:24%;
+  height:24%;
+  background: radial-gradient(circle at 40% 40%, #fff, #ffdf80 55%);
+  border-radius:50%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* falling animation (duration set inline by JS) */
+@keyframes fall {
+  0%{ transform: translateY(-10vh) rotate(0deg); opacity:0 }
+  10%{ opacity:1 }
+  100%{ transform: translateY(120vh) rotate(720deg); opacity:0.9 }
+}
+
+/* small responsiveness tweaks */
+@media (max-width:520px){
+  :root{ --cell-size: clamp(8px, 6.5vw, 28px); }
+  .message-card{ padding:1.4rem 1rem }
+}
+
+/* accessibility focus */
+#heart-wrap:focus{ outline: 3px solid rgba(255,80,100,0.25); border-radius:12px }
